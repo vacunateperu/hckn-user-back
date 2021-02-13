@@ -1,0 +1,20 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Endpoints para el backend de usuarios.",
+    "version": "1.0.0",
+    "title": "hckn-user-back"
+  },
+  "host": "vacunatepe",
+  "basePath": "/",
+  "tags": [
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+  },
+  "definitions": {
+  }
+}
