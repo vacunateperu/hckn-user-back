@@ -5,8 +5,8 @@
     "version": "1.0.0",
     "title": "hckn-user-back"
   },
-  "host": "vacunatepe",
-  "basePath": "/",
+  "host": "hckn-user-back.herokuapp.com",
+  "basePath": "/api",
   "tags": [
   ],
   "schemes": [
