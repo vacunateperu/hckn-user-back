@@ -8,13 +8,205 @@
   "host": "hckn-user-back.herokuapp.com",
   "basePath": "/api",
   "tags": [
+    {
+      "name": "query",
+      "description": "Ingresa los resultados de la encuesta realizada al usuario."
+    }
   ],
   "schemes": [
     "https",
     "http"
   ],
   "paths": {
+    "/query": {
+      "post": {
+        "tags": [
+          "query"
+        ],
+        "summary": "Obten la predicion del disgnostico del usuario.",
+        "description": "Las respuestas de la encuesta junto con el documento de indentidad (DNI) del usuario, seran capturados, para identificar y entragar la prediccion de su diagnostico.",
+        "operationId": "query",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "dni",
+            "description": "Documento de identidad del usuario a consultar.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Documento"
+            }
+          },
+          {
+            "in": "body",
+            "name": "encuesta",
+            "description": "Respuesta de la encuesta aplicada a los usuarios.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Encuesta"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consulta realizada satisfactoriamente!."
+          },
+          "404": {
+            "description": "No ha sido posible idetificar a esta persona."
+          },
+          "500": {
+            "description": "Tenemos problemas para resolver esta solicitud. intentar mas tarde!."
+          }
+        }
+      }
+    }
+
+
+
   },
   "definitions": {
+    "Encuesta": {
+      "type": "object",
+      "required": [
+        "direccion_domicilio",
+        "correo_electronico",
+        "distrito",
+        "ocupacion",
+        "fecha_nacimiento",
+        "sexo",
+        "gestante",
+        "contacto",
+        "obesidad",
+        "diabetes",
+        "enfermedad_respitatoria",
+        "hipertencion",
+        "insuficiencia_renal",
+        "enfermedad_cardiovascular",
+        "cancer",
+        "Inmunodeficiencia",
+        "vih"
+      ],
+      "properties": {
+        "direccion_domicilio": {
+          "type": "string",
+          "example": "Av. Siempre Viva"
+        },
+        "correo_electronico": {
+          "type": "string",
+          "example": "charcapito@gmail.com"
+        },
+        "distrito": {
+          "type": "string",
+          "example": "021801"
+        },
+        "ocupacion": {
+          "type": "string",
+          "example": "NI",
+          "description": "RI(cuando marca alguna de las opciones) y NI (cuando marque ninguno)",
+          "enum": ["RI", "NI"]
+        },
+        "fecha_nacimiento": {
+          "type": "string",
+          "example": "1997-12-20",
+          "description": "RI(cuando marca cuando es >= 60) y NI (cuando marque cuando es menor)"
+        },
+        "sexo": {
+          "type": "string",
+          "example": "F",
+          "description": "",
+          "enum": ["M", "F"]
+        },
+        "gestante": {
+          "type": "string",
+          "example": "NO",
+          "description": "",
+          "enum": ["SI", "NO"]
+        },
+        "contacto": {
+          "type": "string",
+          "example": "NO",
+          "description": "",
+          "enum": ["SI", "NO"]
+        },
+        "obesidad": {
+          "type": "string",
+          "example": "NO",
+          "description": "recuperpo la estatura y el peso para calcular la obesidad a traves de la formula  Estatura (cm)/ peso (kg2) => SI (si es >= 25) ó NO",
+          "enum": ["SI", "NO"]
+        },
+        "diabetes": {
+          "type": "string",
+          "example": "NO",
+          "description": "",
+          "enum": ["SI", "NO"]
+        },
+        "enfermedad_respitatoria": {
+          "type": "string",
+          "example": "NI",
+          "description": "",
+          "enum": ["RI", "NI"]
+        },
+        "hipertencion": {
+          "type": "string",
+          "example": "NO",
+          "description": "",
+          "enum": ["SI", "NO"]
+        },
+        "insuficiencia_renal": {
+          "type": "string",
+          "example": "NO",
+          "description": "",
+          "enum": ["SI", "NO"]
+        },
+        "enfermedad_cardiovascular": {
+          "type": "string",
+          "example": "NI",
+          "description": "",
+          "enum": ["RI", "NI"]
+        },
+        "cancer": {
+          "type": "string",
+          "example": "NO",
+          "description": "",
+          "enum": ["SI", "NO"]
+        },
+        "Inmunodeficiencia": {
+          "type": "string",
+          "example": "NO",
+          "description": "",
+          "enum": ["SI", "NO"]
+        },
+        "vih": {
+          "type": "string",
+          "example": "NO",
+          "description": "",
+          "enum": ["SI", "NO"]
+        }
+      },
+      "xml": {
+        "name": "Encuesta"
+      }
+    },
+    "Documento": {
+      "type": "object",
+      "required": [
+        "dni"
+      ],
+      "properties": {
+        "dni": {
+          "type": "string",
+          "example": "87654321"
+        }
+      },
+      "xml": {
+        "name": "Documento"
+      }
+    }
+
   }
 }
