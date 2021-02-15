@@ -1,45 +1,86 @@
-const handlerError = require("http-errors");
-// https://apiperu.dev/api/dni/{numero} 
- 
 const fetch = require("node-fetch");
+const handlerError = require("http-errors");
+const moment = require("moment")
+const { PollValidator, DocumentValidator } = require("../helpers/document_helper")
+const { Read, Create, Delete, Update } = require("../schemes/persona_Scheme") 
 module.exports = {
     async query(req, res, next){
         try {
-            if(!req.query.dni)  return next(handlerError.BadRequest("Este campo es requerido"))
-            const result = await fetch(`https://apiperu.dev/api/dni/${req.query.dni}`, 
-            { method: 'GET', 
-            headers: { 
-                'Content-Type': 'application/json', 
-                'Authorization': `Bearer ${process.env.KEY_API_PERU_DEV}` 
-            } 
-        }).then(res => res.json())
-        console.log(result)
-        if(!result.success)  return next(handlerError.BadRequest(result.message))
-            const user = result.data;
-            delete user.origen;
-            delete user.nombre_completo;
-            delete user.codigo_verificacion;
-            res.status(200).send(Object.assign(user, {
-                "direccion_domicilio": (req.body.direccion_domicilio)?req.body.direccion_domicilio:"Av. Siempre Viva",
-                "correo_electronico": (req.body.correo_electronico)?req.body.correo_electronico:"charcapito@gmail.com",
-                "distrito": (req.body.distrito)?req.body.distrito:"021801",
-                "ocupacion": (req.body.ocupacion)?req.body.ocupacion:"NI",
-                "fecha_nacimiento": (req.body.fecha_nacimiento)?req.body.fecha_nacimiento:"NI",
-                "sexo": (req.body.sexo)?req.body.sexo:"M",
-                "gestante": (req.body.gestante)?req.body.gestante:"NO",
-                "contacto": (req.body.contacto)?req.body.contacto:"NO",
-                "obesidad": (req.body.obesidad)?req.body.obesidad:"SI",
-                "diabetes": (req.body.diabetes)?req.body.diabetes:"NO",
-                "enfermedad_respitatoria": (req.body.enfermedad_respitatoria)?req.body.enfermedad_respitatoria:"NI",
-                "hipertencion": (req.body.hipertencion)?req.body.hipertencion:"NO",
-                "insuficiencia_renal": (req.body.insuficiencia_renal)?req.body.insuficiencia_renal:"NO",
-                "enfermedad_cardiovascular": (req.body.enfermedad_cardiovascular)?req.body.enfermedad_cardiovascular:"NO",
-                "cancer": (req.body.cancer)?req.body.cancer:"NO",
-                "Inmunodeficiencia": (req.body.Inmunodeficiencia)?req.body.Inmunodeficiencia:"NO",
-                "vih": (req.body.vih)?req.body.vih:"NO"
-            }))
+            const doc = await DocumentValidator.validateAsync(req.query)
+            const registro = await Read(doc.dni);
+            if(registro.rows .length < 1) {
+                const poll = await PollValidator.validateAsync(req.body)
+                const result = await fetch(`https://apiperu.dev/api/dni/${doc.dni}`, 
+                                { method: 'GET', 
+                                headers: { 
+                                    'Content-Type': 'application/json', 
+                                    'Authorization': `Bearer ${process.env.KEY_API_PERU_DEV}` 
+                                } 
+                                }).then(res => res.json())
+                if(!result.success)  return next(handlerError.BadRequest(result.message))
+                    const user = result.data;
+                    delete user.origen;
+                    delete user.nombre_completo;
+                    delete user.codigo_verificacion;
+                    const diagnostic = await fetch(`${process.env.HOST_TO_PREDICTION}`, 
+                            { method: 'POST', 
+                            headers: { 
+                                'Content-Type': 'application/json', 
+                            },
+                            body: JSON.stringify({
+                                "ocup":(poll.ocupacion !== "NI")?"RI":"NI",
+                                "edad": (moment().diff(poll.fecha_nacimiento) >= 60)?"RI":"NI",
+                                "sexo": poll.sexo,
+                                "gestante": poll.gestante,
+                                "contacto": poll.contacto,
+                                "obesidad": poll.obesidad,
+                                "diabetes": poll.diabetes,
+                                "respi": poll.enfermedad_respitatoria,
+                                "cadio": poll.enfermedad_cardiovascular,
+                                "renal": poll.insuficiencia_renal,
+                                "cancer": poll.cancer,
+                            })
+                        }).then(res => res.json())
+                        if(!diagnostic)  return next(handlerError.FailedDependency('Uno de nuestros servicios esta en mantenimiento, intentar mas tarde'))
+                        resultDiagnostic = {
+                            nombres: user.nombres,
+                            apellido_paterno: user.apellido_paterno,
+                            apellido_materno: user.apellido_materno,
+                            f_nacimiento: Object.assign({f:user.fecha_nacimiento},{f:poll.fecha_nacimiento}).f,
+                            sexo: Object.assign({f:user.sexo},{f:poll.sexo}).f,
+                            direccion_domicilio: poll.direccion_domicilio,
+                            correo_electronico: poll.correo_electronico,
+                            documento_identidad: doc.dni,
+                            f_registro: moment().utc(),
+                            id_distrito: poll.distrito,
+                            code_ocupacion: poll.ocupacion,
+                            prob_vulnerabilidad: parseFloat(diagnostic.predict).toFixed(4)
+                        }
+                    const record = await Create(resultDiagnostic,doc.dni);
+                    const selectRecord = await Read(doc.dni);
+                    res.status(200).send(response(selectRecord.rows[0]));
+            } else {
+                res.status(200).send(response(registro.rows[0]));
+            }
         } catch (error) {
             next(error)
         }
+    }
+}
+
+function response(user) {
+    return {
+        nombres: user.nombres,
+        apellido_paterno: user.apellido_paterno,
+        apellido_materno: user.apellido_materno,
+        fecha_nacimiento: user.f_nacimiento,
+        sexo: user.sexo,
+        direccion_domicilio: user.direccion_domicilio,
+        correo_electronico: user.correo_electronico,
+        documento_identidad: user.documento_identidad,
+        registro: user.f_registro,
+        distrito: user.id_distrito,
+        ocupacion: user.code_ocupacion,
+        probabilidad_vulnerabilidad: user.prob_vulnerabilidad
     }
 }
