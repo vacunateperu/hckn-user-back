@@ -45,7 +45,7 @@
           {
             "in": "body",
             "name": "encuesta",
-            "description": "Respuesta de la encuesta aplicada a los usuarios.",
+            "description": "Respuesta de la encuesta aplicada a los usuarios. NOTA: si ya esta registrado en la DB solo se envia el DNI como query en el Path",
             "required": true,
             "schema": {
               "$ref": "#/definitions/Encuesta"
