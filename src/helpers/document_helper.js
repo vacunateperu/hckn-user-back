@@ -7,7 +7,7 @@ module.exports = {
         ocupacion: Joi.string().uppercase().required(), 
         fecha_nacimiento: Joi.string().required(), 
         sexo: Joi.string().uppercase().length(1).required(), 
-        gestante: Joi.string().uppercase().required(), 
+        gestante: Joi.string().uppercase(), 
         contacto: Joi.string().uppercase().required(), 
         obesidad: Joi.string().uppercase().required(), 
         diabetes: Joi.string().uppercase().required(), 
