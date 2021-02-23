@@ -89,7 +89,9 @@
         "enfermedad_cardiovascular",
         "cancer",
         "Inmunodeficiencia",
-        "vih"
+        "vih",
+        "hipertencion_arterial",
+        "enfermedad_cronica_higado"
       ],
       "properties": {
         "direccion_domicilio": {
@@ -175,13 +177,25 @@
           "description": "",
           "enum": ["SI", "NO"]
         },
-        "Inmunodeficiencia": {
+        "inmunodeficiencia": {
           "type": "string",
           "example": "NO",
           "description": "",
           "enum": ["SI", "NO"]
         },
         "vih": {
+          "type": "string",
+          "example": "NO",
+          "description": "",
+          "enum": ["SI", "NO"]
+        },
+        "hipertencion_arterial": {
+          "type": "string",
+          "example": "NO",
+          "description": "",
+          "enum": ["SI", "NO"]
+        },
+        "enfermedad_cronica_higado": {
           "type": "string",
           "example": "NO",
           "description": "",

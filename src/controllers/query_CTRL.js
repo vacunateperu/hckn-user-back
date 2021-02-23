@@ -31,7 +31,7 @@ module.exports = {
                                 "ocup":(poll.ocupacion !== "NI")?"RI":"NI",
                                 "edad": (moment().diff(poll.fecha_nacimiento) >= 60)?"RI":"NI",
                                 "sexo": poll.sexo,
-                                "gestante": poll.gestante,
+                                "gestante": (poll.sexo === "F")?"SI":"NO",
                                 "contacto": poll.contacto,
                                 "obesidad": poll.obesidad,
                                 "diabetes": poll.diabetes,
@@ -39,6 +39,10 @@ module.exports = {
                                 "cadio": poll.enfermedad_cardiovascular,
                                 "renal": poll.insuficiencia_renal,
                                 "cancer": poll.cancer,
+                                "hipertencion_arterial": poll.hipertencion_arterial,
+                                "inmunodeficiencia": poll.inmunodeficiencia,
+                                "vih": poll.vih,
+                                "enfermedad_cronica_higado": poll.enfermedad_cronica_higado
                             })
                         }).then(res => res.json())
                         if(!diagnostic)  return next(handlerError.FailedDependency('Uno de nuestros servicios esta en mantenimiento, intentar mas tarde'))
@@ -54,7 +58,11 @@ module.exports = {
                             f_registro: moment().utc(),
                             id_distrito: poll.distrito,
                             code_ocupacion: poll.ocupacion,
-                            prob_vulnerabilidad: parseFloat(diagnostic.predict).toFixed(4)
+                            prob_vulnerabilidad: parseFloat(diagnostic.predict).toFixed(4),
+                            hiper_arterial: poll.hipertencion_arterial,
+                            inmu_defi: poll.inmunodeficiencia,
+                            vih: poll.vih,
+                            enf_cro_hi: poll.enfermedad_cronica_higado
                         }
                     const record = await Create(resultDiagnostic,doc.dni);
                     const selectRecord = await Read(doc.dni);
