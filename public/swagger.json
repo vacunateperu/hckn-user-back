@@ -9,7 +9,11 @@
   "basePath": "/api",
   "tags": [
     {
-      "name": "query",
+      "name": "Identity",
+      "description": "Consuta por los datos de las personas."
+    },
+    {
+      "name": "Query",
       "description": "Ingresa los resultados de la encuesta realizada al usuario."
     }
   ],
@@ -18,14 +22,52 @@
     "http"
   ],
   "paths": {
+    "/identity": {
+      "get": {
+        "tags": [
+          "Identity"
+        ],
+        "summary": "Obten los datos del usuario a traves de su Documento de Identidad (DNI).",
+        "description": "Ingresa como query el Documento de Identidad (DNI) de la persona a consultar y retornara los datos personales básicos.",
+        "operationId": "Identity",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "dni",
+            "description": "Documento de identidad del usuario a consultar.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Documento"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consulta realizada satisfactoriamente!."
+          },
+          "404": {
+            "description": "No ha sido posible idetificar a esta persona."
+          },
+          "500": {
+            "description": "Tenemos problemas para resolver esta solicitud. intentar mas tarde!."
+          }
+        }
+      }
+    },
     "/query": {
       "post": {
         "tags": [
-          "query"
+          "Query"
         ],
         "summary": "Obten la predicion del disgnostico del usuario.",
         "description": "Las respuestas de la encuesta junto con el documento de indentidad (DNI) del usuario, seran capturados, para identificar y entragar la prediccion de su diagnostico.",
-        "operationId": "query",
+        "operationId": "Query",
         "consumes": [
           "application/json"
         ],
@@ -127,7 +169,8 @@
           "type": "string",
           "example": "NO",
           "description": "",
-          "enum": ["SI", "NO"]
+          "enum": ["SI", "NO"],
+          "required": true
         },
         "contacto": {
           "type": "string",
