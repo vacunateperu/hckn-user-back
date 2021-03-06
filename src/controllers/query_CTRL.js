@@ -78,22 +78,15 @@ module.exports = {
     async identity(req, res, next){
         try {
             const doc = await DocumentValidator.validateAsync(req.query)
-            const registro = await Read(doc.dni);
-            if(registro.rows .length < 1) {
-                const poll = await PollValidator.validateAsync(req.body)
-                const result = await fetch(`https://apiperu.dev/api/dni/${doc.dni}`, 
-                                { method: 'GET', 
-                                headers: { 
-                                    'Content-Type': 'application/json', 
-                                    'Authorization': `Bearer ${process.env.KEY_API_PERU_DEV}` 
-                                } 
-                                }).then(res => res.json())
-                if(!result.success)  return next(handlerError.BadRequest(result.message))
-                 
-                    res.status(200).send({user: result.data});
-            } else {
-                res.status(200).send(response(registro.rows[0]));
-            }
+            const result = await fetch(`https://apiperu.dev/api/dni/${doc.dni}`, 
+                            { method: 'GET', 
+                            headers: { 
+                                'Content-Type': 'application/json', 
+                                'Authorization': `Bearer ${process.env.KEY_API_PERU_DEV}` 
+                            } 
+                            }).then(res => res.json())
+            if(!result.success)  return next(handlerError.BadRequest(result.message))
+                res.status(200).send({user: result.data});
         } catch (error) {
             next(error)
         }
