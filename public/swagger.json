@@ -191,9 +191,9 @@
         },
         "enfermedad_respitatoria": {
           "type": "string",
-          "example": "NI",
+          "example": "NO",
           "description": "",
-          "enum": ["RI", "NI"]
+          "enum": ["NO", "SI"]
         },
         "insuficiencia_renal": {
           "type": "string",
@@ -203,9 +203,9 @@
         },
         "enfermedad_cardiovascular": {
           "type": "string",
-          "example": "NI",
+          "example": "NO",
           "description": "",
-          "enum": ["RI", "NI"]
+          "enum": ["NO", "SI"]
         },
         "cancer": {
           "type": "string",
