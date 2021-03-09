@@ -2,50 +2,50 @@ const fetch = require("node-fetch");
 const handlerError = require("http-errors");
 const moment = require("moment")
 const { PollValidator, DocumentValidator } = require("../helpers/document_helper")
-const { Read, Create, Delete, Update } = require("../schemes/persona_Scheme") 
+const { Read, Create, Update } = require("../schemes/persona_Scheme") 
 module.exports = {
     async query(req, res, next){
         try {
+            const poll = await PollValidator.validateAsync(req.body)
+            const age = moment().diff(poll.fecha_nacimiento, 'years')
+            const toCharca = JSON.stringify({
+                "ocup":(poll.ocupacion !== "NI")?"RI":"NI",
+                "edad": (age >= 60)?"RI":"NI",
+                "sexo": poll.sexo,
+                "gestante": (poll.sexo === "F")?(poll.gestante)?poll.gestante:"NO":"NO",
+                "contacto": poll.contacto,
+                "obesidad": poll.obesidad,
+                "diabetes": poll.diabetes,
+                "respi": poll.enfermedad_respitatoria,
+                "hiper_arterial": poll.hipertencion_arterial,
+                "cadio": poll.enfermedad_cardiovascular,
+                "renal": poll.insuficiencia_renal,
+                "cancer": poll.cancer,
+                "inmu_defi": poll.inmunodeficiencia,
+                "vih": poll.vih,
+                "enf_cro_hi": poll.enfermedad_cronica_higado
+            })
+            console.table(toCharca)
+            const diagnostic = await fetch(`${process.env.HOST_TO_PREDICTION}`, 
+                    { method: 'POST', 
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                    },
+                    body: toCharca
+                }).then(res => res.json())
+            console.log(diagnostic)
             const doc = await DocumentValidator.validateAsync(req.query)
-            console.log(doc)
             const registro = await Read(doc.dni);
             if(registro.rows .length < 1) {
-                const poll = await PollValidator.validateAsync(req.body)
                 const result = await fetch(`https://apiperu.dev/api/dni/${doc.dni}`, 
                                 { method: 'GET', 
-                                headers: { 
-                                    'Content-Type': 'application/json', 
-                                    'Authorization': `Bearer ${process.env.KEY_API_PERU_DEV}` 
-                                } 
+                                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.KEY_API_PERU_DEV}` } 
                                 }).then(res => res.json())
                 if(!result.success)  return next(handlerError.BadRequest(result.message))
                     const user = result.data;
                     delete user.origen;
                     delete user.nombre_completo;
                     delete user.codigo_verificacion;
-                    const diagnostic = await fetch(`${process.env.HOST_TO_PREDICTION}`, 
-                            { method: 'POST', 
-                            headers: { 
-                                'Content-Type': 'application/json', 
-                            },
-                            body: JSON.stringify({
-                                "ocup":(poll.ocupacion !== "NI")?"RI":"NI",
-                                "edad": (moment().diff(poll.fecha_nacimiento) >= 60)?"RI":"NI",
-                                "sexo": poll.sexo,
-                                "gestante": (poll.sexo === "F")?(poll.gestante)?poll.gestante:"NO":"NO",
-                                "contacto": poll.contacto,
-                                "obesidad": poll.obesidad,
-                                "diabetes": poll.diabetes,
-                                "respi": poll.enfermedad_respitatoria,
-                                "hiper_arterial": poll.hipertencion_arterial,
-                                "cadio": poll.enfermedad_cardiovascular,
-                                "renal": poll.insuficiencia_renal,
-                                "cancer": poll.cancer,
-                                "inmu_defi": poll.inmunodeficiencia,
-                                "vih": poll.vih,
-                                "enf_cro_hi": poll.enfermedad_cronica_higado
-                            })
-                        }).then(res => res.json())
                         if(!diagnostic)  return next(handlerError.FailedDependency('Uno de nuestros servicios esta en mantenimiento, intentar mas tarde'))
                         resultDiagnostic = {
                             nombres: user.nombres,
@@ -69,9 +69,12 @@ module.exports = {
                     const selectRecord = await Read(doc.dni);
                     res.status(200).send(response(selectRecord.rows[0]));
             } else {
-                res.status(200).send(response(registro.rows[0]));
+                const record = await Update(parseFloat(diagnostic.predict).toFixed(4),doc.dni);
+                const selectRecord = await Read(doc.dni);
+                res.status(200).send(response(selectRecord.rows[0]));
             }
         } catch (error) {
+            console.log(error)
             next(error)
         }
     },

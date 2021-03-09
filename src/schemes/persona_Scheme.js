@@ -8,5 +8,10 @@ module.exports = {
     },
     Read(dni) {
         return db.query(`SELECT * FROM public.persona  WHERE documento_identidad = '${dni}' LIMIT 1`)
-    }
+    },
+    Update(prob, dni) {
+        return db.query(`UPDATE public.persona
+        SET prob_vulnerabilidad='${prob}'
+        WHERE documento_identidad='${dni}'`)
+    },
 }
