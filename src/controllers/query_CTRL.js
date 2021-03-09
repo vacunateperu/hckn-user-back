@@ -39,10 +39,10 @@ module.exports = {
                                 "cadio": poll.enfermedad_cardiovascular,
                                 "renal": poll.insuficiencia_renal,
                                 "cancer": poll.cancer,
-                                "hipertencion_arterial": poll.hipertencion_arterial,
-                                "inmunodeficiencia": poll.inmunodeficiencia,
+                                "hiper_arterial": poll.hipertencion_arterial,
+                                "inmu_defi": poll.inmunodeficiencia,
                                 "vih": poll.vih,
-                                "enfermedad_cronica_higado": poll.enfermedad_cronica_higado
+                                "enf_cro_hi": poll.enfermedad_cronica_higado
                             })
                         }).then(res => res.json())
                         if(!diagnostic)  return next(handlerError.FailedDependency('Uno de nuestros servicios esta en mantenimiento, intentar mas tarde'))
