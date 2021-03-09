@@ -7,6 +7,7 @@ module.exports = {
     async query(req, res, next){
         try {
             const doc = await DocumentValidator.validateAsync(req.query)
+            console.log(doc)
             const registro = await Read(doc.dni);
             if(registro.rows .length < 1) {
                 const poll = await PollValidator.validateAsync(req.body)
@@ -36,10 +37,10 @@ module.exports = {
                                 "obesidad": poll.obesidad,
                                 "diabetes": poll.diabetes,
                                 "respi": poll.enfermedad_respitatoria,
+                                "hiper_arterial": poll.hipertencion_arterial,
                                 "cadio": poll.enfermedad_cardiovascular,
                                 "renal": poll.insuficiencia_renal,
                                 "cancer": poll.cancer,
-                                "hiper_arterial": poll.hipertencion_arterial,
                                 "inmu_defi": poll.inmunodeficiencia,
                                 "vih": poll.vih,
                                 "enf_cro_hi": poll.enfermedad_cronica_higado
