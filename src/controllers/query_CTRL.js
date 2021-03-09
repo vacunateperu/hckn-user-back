@@ -8,32 +8,29 @@ module.exports = {
         try {
             const poll = await PollValidator.validateAsync(req.body)
             const age = moment().diff(poll.fecha_nacimiento, 'years')
-            const toCharca = JSON.stringify({
-                "ocup":(poll.ocupacion !== "NI")?"RI":"NI",
-                "edad": (age >= 60)?"RI":"NI",
-                "sexo": poll.sexo,
-                "gestante": (poll.sexo === "F")?(poll.gestante)?poll.gestante:"NO":"NO",
-                "contacto": poll.contacto,
-                "obesidad": poll.obesidad,
-                "diabetes": poll.diabetes,
-                "respi": poll.enfermedad_respitatoria,
-                "hiper_arterial": poll.hipertencion_arterial,
-                "cadio": poll.enfermedad_cardiovascular,
-                "renal": poll.insuficiencia_renal,
-                "cancer": poll.cancer,
-                "inmu_defi": poll.inmunodeficiencia,
-                "vih": poll.vih,
-                "enf_cro_hi": poll.enfermedad_cronica_higado
-            })
-            console.table(toCharca)
             const diagnostic = await fetch(`${process.env.HOST_TO_PREDICTION}`, 
                     { method: 'POST', 
                     headers: { 
                         'Content-Type': 'application/json', 
                     },
-                    body: toCharca
+                    body: JSON.stringify({
+                        "ocup":(poll.ocupacion !== "NI")?"RI":"NI",
+                        "edad": (age >= 60)?"RI":"NI",
+                        "sexo": poll.sexo,
+                        "gestante": (poll.sexo === "F")?(poll.gestante)?poll.gestante:"NO":"NO",
+                        "contacto": poll.contacto,
+                        "obesidad": poll.obesidad,
+                        "diabetes": poll.diabetes,
+                        "respi": poll.enfermedad_respitatoria,
+                        "hiper_arterial": poll.hipertencion_arterial,
+                        "cadio": poll.enfermedad_cardiovascular,
+                        "renal": poll.insuficiencia_renal,
+                        "cancer": poll.cancer,
+                        "inmu_defi": poll.inmunodeficiencia,
+                        "vih": poll.vih,
+                        "enf_cro_hi": poll.enfermedad_cronica_higado
+                    })
                 }).then(res => res.json())
-            console.log(diagnostic)
             const doc = await DocumentValidator.validateAsync(req.query)
             const registro = await Read(doc.dni);
             if(registro.rows .length < 1) {
