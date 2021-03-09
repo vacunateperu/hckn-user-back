@@ -31,7 +31,7 @@ module.exports = {
                                 "ocup":(poll.ocupacion !== "NI")?"RI":"NI",
                                 "edad": (moment().diff(poll.fecha_nacimiento) >= 60)?"RI":"NI",
                                 "sexo": poll.sexo,
-                                "gestante": (poll.sexo === "F")?"SI":"NO",
+                                "gestante": (poll.sexo === "F")?(poll.gestante)?poll.gestante:"NO":"NO",
                                 "contacto": poll.contacto,
                                 "obesidad": poll.obesidad,
                                 "diabetes": poll.diabetes,

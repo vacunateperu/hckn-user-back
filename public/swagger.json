@@ -126,11 +126,10 @@
         "obesidad",
         "diabetes",
         "enfermedad_respitatoria",
-        "hipertencion",
         "insuficiencia_renal",
         "enfermedad_cardiovascular",
         "cancer",
-        "Inmunodeficiencia",
+        "inmunodeficiencia",
         "vih",
         "hipertencion_arterial",
         "enfermedad_cronica_higado"
@@ -195,12 +194,6 @@
           "example": "NI",
           "description": "",
           "enum": ["RI", "NI"]
-        },
-        "hipertencion": {
-          "type": "string",
-          "example": "NO",
-          "description": "",
-          "enum": ["SI", "NO"]
         },
         "insuficiencia_renal": {
           "type": "string",
